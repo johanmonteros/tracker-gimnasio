@@ -1,0 +1,27 @@
+{
+    "name": "GymTracker Pro",
+    "short_name": "GymTracker",
+    "description": "Tracker minimalista de gimnasio para registrar entrenamientos de hipertrofia y rendimiento atlético.",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#000000",
+    "theme_color": "#000000",
+    "icons": [
+        {
+            "src": "icon.svg",
+            "type": "image/svg+xml",
+            "sizes": "any",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icon.svg",
+            "type": "image/svg+xml",
+            "sizes": "192x192"
+        },
+        {
+            "src": "icon.svg",
+            "type": "image/svg+xml",
+            "sizes": "512x512"
+        }
+    ]
+}

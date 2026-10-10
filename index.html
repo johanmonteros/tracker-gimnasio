@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description"
+        content="Tracker minimalista de gimnasio para registrar entrenamientos de hipertrofia y rendimiento atlético." />
+    <title>GymTracker Pro</title>
+
+    <!-- PWA / Web App Manifest e iOS -->
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icon.svg" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="GymTracker" />
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        neon: '#39FF14',
+                        accent: '#F97316',
+                        surface: '#1c1c1e',
+                        card: '#2c2c2e',
+                        border: '#3a3a3c',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap"
+        rel="stylesheet" />
+
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #111827;
+        }
+
+        /* Ocultar scrollbar en WebKit */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1c1c1e;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3a3a3c;
+            border-radius: 4px;
+        }
+
+        /* Animación del temporizador */
+        @keyframes pulse-ring {
+            0% {
+                box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 14px rgba(57, 255, 20, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(57, 255, 20, 0);
+            }
+        }
+
+        .timer-active {
+            animation: pulse-ring 1.5s infinite;
+        }
+
+        @keyframes flash-red {
+
+            0%,
+            100% {
+                background-color: #1c1c1e;
+            }
+
+            50% {
+                background-color: #7f1d1d;
+            }
+        }
+
+        .timer-warning {
+            animation: flash-red 0.8s infinite;
+        }
+
+        /* Select custom dark */
+        select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.75rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+    </style>
+</head>
+
+<body class="dark font-sans text-gray-100 min-h-screen">
+
+    <div class="max-w-md mx-auto px-4 pb-10 pt-6 min-h-screen flex flex-col gap-5">
+
+        <!-- ─── HEADER ─── -->
+        <header class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-black tracking-tight text-white">💪 GymTracker</h1>
+                <p id="fecha-hoy" class="text-xs text-gray-500 mt-0.5"></p>
+            </div>
+            <span
+                class="text-xs bg-green-900/40 text-green-400 border border-green-800 rounded-full px-3 py-1 font-semibold">Fase
+                1</span>
+        </header>
+
+        <!-- ─── SELECTORES ─── -->
+        <section class="bg-card rounded-2xl p-4 flex flex-col gap-3 border border-border">
+            <!-- Selector de Día -->
+            <div>
+                <label for="sel-dia"
+                    class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1.5 block">Día de
+                    Entrenamiento</label>
+                <select id="sel-dia"
+                    class="w-full bg-surface text-white border border-border rounded-xl px-4 py-3 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-neon/50"
+                    onchange="onDiaChange()">
+                    <option value="" disabled selected>— Seleccionar día —</option>
+                </select>
+            </div>
+
+            <!-- Selector de Ejercicio -->
+            <div>
+                <label for="sel-ejercicio"
+                    class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1.5 block">Ejercicio</label>
+                <select id="sel-ejercicio"
+                    class="w-full bg-surface text-white border border-border rounded-xl px-4 py-3 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-neon/50 disabled:opacity-40"
+                    disabled>
+                    <option value="" disabled selected>— Primero elige un día —</option>
+                </select>
+            </div>
+        </section>
+
+        <!-- ─── CONTROLES PESO & REPS ─── -->
+        <section class="bg-card rounded-2xl p-4 border border-border">
+            <div class="grid grid-cols-2 gap-4">
+
+                <!-- Peso -->
+                <div class="flex flex-col items-center gap-2">
+                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-widest">Peso (kg)</span>
+                    <div class="flex items-center gap-3 w-full justify-center">
+                        <button id="btn-peso-menos" onclick="ajustar('peso', -2.5)"
+                            class="w-14 h-14 rounded-2xl bg-surface border border-border text-2xl font-black text-accent active:scale-95 transition-transform flex items-center justify-center"
+                            aria-label="Restar peso">−</button>
+                        <span id="val-peso" class="text-3xl font-black text-white w-16 text-center">60</span>
+                        <button id="btn-peso-mas" onclick="ajustar('peso', 2.5)"
+                            class="w-14 h-14 rounded-2xl bg-surface border border-border text-2xl font-black text-neon active:scale-95 transition-transform flex items-center justify-center"
+                            aria-label="Sumar peso">+</button>
+                    </div>
+                    <span class="text-xs text-gray-500">±2.5 kg</span>
+                </div>
+
+                <!-- Repeticiones -->
+                <div class="flex flex-col items-center gap-2">
+                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-widest">Reps</span>
+                    <div class="flex items-center gap-3 w-full justify-center">
+                        <button id="btn-reps-menos" onclick="ajustar('reps', -1)"
+                            class="w-14 h-14 rounded-2xl bg-surface border border-border text-2xl font-black text-accent active:scale-95 transition-transform flex items-center justify-center"
+                            aria-label="Restar repeticiones">−</button>
+                        <span id="val-reps" class="text-3xl font-black text-white w-16 text-center">10</span>
+                        <button id="btn-reps-mas" onclick="ajustar('reps', 1)"
+                            class="w-14 h-14 rounded-2xl bg-surface border border-border text-2xl font-black text-neon active:scale-95 transition-transform flex items-center justify-center"
+                            aria-label="Sumar repeticiones">+</button>
+                    </div>
+                    <span class="text-xs text-gray-500">±1 rep</span>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ─── BOTÓN COMPLETAR SERIE ─── -->
+        <button id="btn-completar" onclick="completarSerie()"
+            class="w-full py-5 rounded-2xl bg-neon text-gray-900 text-xl font-black tracking-tight active:scale-95 transition-transform shadow-lg shadow-green-900/40 disabled:opacity-40 disabled:cursor-not-allowed"
+            disabled>
+            ✅ Completar Serie
+        </button>
+
+        <!-- ─── TEMPORIZADOR ─── -->
+        <section id="timer-section"
+            class="bg-card rounded-2xl border border-border p-5 flex flex-col items-center gap-4">
+            <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-widest self-start">⏱ Descanso</h2>
+
+            <!-- Display -->
+            <div id="timer-display"
+                class="w-36 h-36 rounded-full bg-surface border-4 border-border flex items-center justify-center transition-all"
+                role="timer" aria-live="polite">
+                <span id="timer-texto" class="text-5xl font-black text-white tabular-nums">90</span>
+            </div>
+
+            <!-- Botones rápidos de tiempo -->
+            <div class="flex gap-2">
+                <button onclick="setTimer(60)"
+                    class="flex-1 px-4 py-2 rounded-xl bg-surface border border-border text-sm font-bold text-gray-300 active:bg-border transition-colors"
+                    aria-label="60 segundos">60s</button>
+                <button onclick="setTimer(90)"
+                    class="flex-1 px-4 py-2 rounded-xl bg-surface border border-border text-sm font-bold text-gray-300 active:bg-border transition-colors"
+                    aria-label="90 segundos">90s</button>
+                <button onclick="setTimer(120)"
+                    class="flex-1 px-4 py-2 rounded-xl bg-surface border border-border text-sm font-bold text-gray-300 active:bg-border transition-colors"
+                    aria-label="120 segundos">120s</button>
+            </div>
+
+            <p class="text-xs text-gray-600 text-center">El temporizador inicia automáticamente al completar una serie.
+            </p>
+        </section>
+
+        <!-- ─── HISTORIAL DEL DÍA ─── -->
+        <section>
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-widest">📋 Historial de Hoy</h2>
+                <button onclick="confirmarBorrarHistorial()"
+                    class="text-xs text-red-500 hover:text-red-400 transition-colors font-semibold"
+                    aria-label="Borrar historial de hoy">Borrar todo</button>
+            </div>
+
+            <div id="historial-lista" class="flex flex-col gap-2">
+                <!-- Se llena dinámicamente -->
+            </div>
+
+            <p id="historial-empty" class="text-center text-gray-600 text-sm py-6 hidden">
+                Aún no hay series registradas hoy. ¡A entrenar!
+            </p>
+        </section>
+
+    </div><!-- /max-w-md -->
+
+    <!-- ─── TOAST ─── -->
+    <div id="toast"
+        class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-neon text-gray-900 text-sm font-bold px-5 py-3 rounded-2xl shadow-xl opacity-0 pointer-events-none transition-opacity duration-300"
+        role="alert"></div>
+
+    <!-- ─── SCRIPT PRINCIPAL ─── -->
+    <script>
+        /* ══════════════ BASE DE DATOS DE RUTINAS ══════════════ */
+        const RUTINA = {
+            "Día 1: Lower 1 (Gym)": [
+                "Sentadilla Búlgara",
+                "Peso Muerto Rumano (RDL)",
+                "Extensión de Cuádriceps",
+                "Curl de Isquiotibiales",
+                "Elevación de talón a 1 pierna"
+            ],
+            "Día 2: Upper 1 (Gym)": [
+                "Press Inclinado con mancuernas",
+                "Dominadas estrictas",
+                "Remo en máquina/barra",
+                "Face Pull",
+                "Elevaciones Laterales",
+                "Curl de Bíceps con mancuernas"
+            ],
+            "Día 3: Lower 2 (Box)": [
+                "Saltos a Cajón (Plyo Box)",
+                "Kettlebell Swings",
+                "Zancadas (Lunges) caminando",
+                "Plancha abdominal (Plank)"
+            ],
+            "Día 4: Upper 2 (Gym)": [
+                "Press Plano con mancuernas",
+                "Jalón al pecho en polea",
+                "Press Militar sentado",
+                "Extensión de Tríceps en polea",
+                "Curl Martillo para Bíceps"
+            ]
+        };
+
+        /* ══════════════ ESTADO ══════════════ */
+        let peso = 60;
+        let reps = 10;
+        let timerSeg = 90;
+        let timerDefault = 90;
+        let timerInterval = null;
+        let timerRunning = false;
+
+        /* ══════════════ FECHA HOY ══════════════ */
+        function fechaHoy() {
+            const now = new Date();
+            return now.toISOString().split('T')[0]; // YYYY-MM-DD
+        }
+
+        function mostrarFecha() {
+            const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('fecha-hoy').textContent =
+                new Date().toLocaleDateString('es-ES', opts);
+        }
+
+        /* ══════════════ INICIALIZAR SELECTORES ══════════════ */
+        function inicializarDias() {
+            const selDia = document.getElementById('sel-dia');
+            Object.keys(RUTINA).forEach(dia => {
+                const opt = document.createElement('option');
+                opt.value = dia;
+                opt.textContent = dia;
+                selDia.appendChild(opt);
+            });
+        }
+
+        function onDiaChange() {
+            const dia = document.getElementById('sel-dia').value;
+            const selEj = document.getElementById('sel-ejercicio');
+            selEj.innerHTML = '<option value="" disabled selected>— Seleccionar ejercicio —</option>';
+            if (dia && RUTINA[dia]) {
+                RUTINA[dia].forEach(ej => {
+                    const opt = document.createElement('option');
+                    opt.value = ej;
+                    opt.textContent = ej;
+                    selEj.appendChild(opt);
+                });
+                selEj.disabled = false;
+            } else {
+                selEj.disabled = true;
+            }
+            selEj.value = '';
+            actualizarBotonCompletar();
+        }
+
+        document.getElementById('sel-ejercicio').addEventListener('change', actualizarBotonCompletar);
+
+        function actualizarBotonCompletar() {
+            const dia = document.getElementById('sel-dia').value;
+            const ej = document.getElementById('sel-ejercicio').value;
+            document.getElementById('btn-completar').disabled = !(dia && ej);
+        }
+
+        /* ══════════════ AJUSTAR PESO & REPS ══════════════ */
+        function ajustar(campo, delta) {
+            if (campo === 'peso') {
+                peso = Math.max(0, parseFloat((peso + delta).toFixed(1)));
+                document.getElementById('val-peso').textContent = peso % 1 === 0 ? peso : peso.toFixed(1);
+            } else {
+                reps = Math.max(1, reps + delta);
+                document.getElementById('val-reps').textContent = reps;
+            }
+        }
+
+        /* ══════════════ COMPLETAR SERIE ══════════════ */
+        function completarSerie() {
+            const dia = document.getElementById('sel-dia').value;
+            const ejercicio = document.getElementById('sel-ejercicio').value;
+            if (!dia || !ejercicio) return;
+
+            const registro = {
+                id: Date.now(),
+                fecha: fechaHoy(),
+                dia,
+                ejercicio,
+                peso,
+                repeticiones: reps
+            };
+
+            guardarRegistro(registro);
+            renderHistorial();
+            iniciarTimer();
+            mostrarToast(`✅ Serie guardada: ${peso} kg × ${reps} reps`);
+        }
+
+        /* ══════════════ LOCALSTORAGE ══════════════ */
+        const LS_KEY = 'gymtracker_series';
+
+        function cargarRegistros() {
+            try {
+                return JSON.parse(localStorage.getItem(LS_KEY)) || [];
+            } catch { return []; }
+        }
+
+        function guardarRegistro(registro) {
+            const datos = cargarRegistros();
+            datos.push(registro);
+            localStorage.setItem(LS_KEY, JSON.stringify(datos));
+        }
+
+        function registrosDeHoy() {
+            const hoy = fechaHoy();
+            return cargarRegistros().filter(r => r.fecha === hoy).reverse();
+        }
+
+        function borrarHistorialHoy() {
+            const hoy = fechaHoy();
+            const datos = cargarRegistros().filter(r => r.fecha !== hoy);
+            localStorage.setItem(LS_KEY, JSON.stringify(datos));
+            renderHistorial();
+            mostrarToast('🗑 Historial de hoy borrado');
+        }
+
+        function confirmarBorrarHistorial() {
+            if (confirm('¿Borrar todo el historial de hoy?')) borrarHistorialHoy();
+        }
+
+        /* ══════════════ RENDER HISTORIAL ══════════════ */
+        function renderHistorial() {
+            const lista = document.getElementById('historial-lista');
+            const empty = document.getElementById('historial-empty');
+            const series = registrosDeHoy();
+            lista.innerHTML = '';
+
+            if (series.length === 0) {
+                empty.classList.remove('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+
+            series.forEach((r, idx) => {
+                const num = series.length - idx;
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between bg-card border border-border rounded-xl px-4 py-3 gap-3';
+                div.innerHTML = `
+          <div class="flex items-center gap-3 min-w-0">
+            <span class="text-xs font-bold text-gray-500 w-5 text-center shrink-0">#${num}</span>
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-white truncate">${r.ejercicio}</p>
+              <p class="text-xs text-gray-500 truncate">${r.dia}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 shrink-0">
+            <div class="text-right">
+              <p class="text-base font-black text-neon">${r.peso} <span class="text-xs font-normal text-gray-400">kg</span></p>
+              <p class="text-xs text-gray-400">${r.repeticiones} reps</p>
+            </div>
+            <button
+              onclick="borrarSerie(${r.id})"
+              class="text-gray-700 hover:text-red-500 transition-colors text-lg leading-none"
+              aria-label="Borrar esta serie"
+            >✕</button>
+          </div>
+        `;
+                lista.appendChild(div);
+            });
+        }
+
+        function borrarSerie(id) {
+            const datos = cargarRegistros().filter(r => r.id !== id);
+            localStorage.setItem(LS_KEY, JSON.stringify(datos));
+            renderHistorial();
+        }
+
+        /* ══════════════ TEMPORIZADOR ══════════════ */
+        function setTimer(segundos) {
+            timerDefault = segundos;
+            if (!timerRunning) {
+                timerSeg = segundos;
+                actualizarDisplayTimer();
+            }
+        }
+
+        function iniciarTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerSeg = timerDefault;
+            timerRunning = true;
+            actualizarDisplayTimer();
+
+            const display = document.getElementById('timer-display');
+            display.classList.add('timer-active');
+            display.style.borderColor = '#39FF14';
+
+            timerInterval = setInterval(() => {
+                timerSeg--;
+                actualizarDisplayTimer();
+
+                if (timerSeg <= 10) {
+                    display.classList.remove('timer-active');
+                    display.classList.add('timer-warning');
+                    display.style.borderColor = '#ef4444';
+                }
+
+                if (timerSeg <= 0) {
+                    clearInterval(timerInterval);
+                    timerRunning = false;
+                    display.classList.remove('timer-active', 'timer-warning');
+                    display.style.borderColor = '';
+                    mostrarToast('⏰ ¡Descanso terminado! Siguiente serie.');
+                    // Intentar vibrar si está disponible
+                    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+                }
+            }, 1000);
+        }
+
+        function actualizarDisplayTimer() {
+            document.getElementById('timer-texto').textContent = timerSeg;
+        }
+
+        /* ══════════════ TOAST ══════════════ */
+        let toastTimeout;
+        function mostrarToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.remove('opacity-0');
+            toast.classList.add('opacity-100');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0');
+            }, 2500);
+        }
+
+        /* ══════════════ INIT ══════════════ */
+        mostrarFecha();
+        inicializarDias();
+        renderHistorial();
+
+        /* ══════════════ SERVICE WORKER (PWA) ══════════════ */
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker registrado exitosamente', reg.scope))
+                    .catch(err => console.warn('Error al registrar el Service Worker', err));
+            });
+        }
+    </script>
+</body>
+
+</html>
