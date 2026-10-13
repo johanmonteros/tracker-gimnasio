@@ -171,6 +171,15 @@
                     disabled>
                     <option value="" disabled selected>— Primero elige un día —</option>
                 </select>
+                <!-- Meta de Entrenamiento -->
+                <div id="meta-entrenamiento"
+                    class="hidden mt-2 flex items-center gap-2 bg-surface border border-neon/30 rounded-xl px-4 py-2.5">
+                    <span class="text-neon text-lg">🎯</span>
+                    <div>
+                        <span class="text-xs font-semibold text-gray-400 uppercase tracking-widest block">Meta</span>
+                        <span id="meta-texto" class="text-base font-black text-white"></span>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -259,89 +268,90 @@
         const RUTINAS = {
             "Fase 1: Adaptación y Base (1 mes)": {
                 "Día 1: Lower 1": [
-                    { nombre: "Sentadilla Búlgara", peso: true, descanso: 120 },
-                    { nombre: "Peso Muerto Rumano con mancuernas", peso: true, descanso: 120 },
-                    { nombre: "Extensión de Cuádriceps", peso: true, descanso: 60 },
-                    { nombre: "Curl de Isquiotibiales", peso: true, descanso: 60 },
-                    { nombre: "Elevación de Talón a 1 pierna", peso: true, descanso: 60 }
+                    { nombre: "Sentadilla Búlgara", recomendacion: "3 x 8-10 reps", peso: true, descanso: 120 },
+                    { nombre: "Peso Muerto Rumano con mancuernas", recomendacion: "3 x 10-12 reps", peso: true, descanso: 120 },
+                    { nombre: "Extensión de Cuádriceps", recomendacion: "3 x 12-15 reps", peso: true, descanso: 60 },
+                    { nombre: "Curl de Isquiotibiales", recomendacion: "3 x 12-15 reps", peso: true, descanso: 60 },
+                    { nombre: "Elevación de Talón a 1 pierna", recomendacion: "4 x 15-20 reps", peso: true, descanso: 60 }
                 ],
                 "Día 2: Upper 1": [
-                    { nombre: "Press Inclinado con mancuernas", peso: true, descanso: 120 },
-                    { nombre: "Dominadas estrictas", peso: false, descanso: 120 },
-                    { nombre: "Remo en polea/mancuerna", peso: true, descanso: 90 },
-                    { nombre: "Face Pull", peso: true, descanso: 60 },
-                    { nombre: "Elevaciones Laterales", peso: true, descanso: 60 },
-                    { nombre: "Curl de Bíceps alterno", peso: true, descanso: 60 }
+                    { nombre: "Press Inclinado con mancuernas", recomendacion: "4 x 8-10 reps", peso: true, descanso: 120 },
+                    { nombre: "Dominadas estrictas", recomendacion: "4 x Al fallo", peso: false, descanso: 120 },
+                    { nombre: "Remo en polea/mancuerna", recomendacion: "3 x 10-12 reps", peso: true, descanso: 90 },
+                    { nombre: "Face Pull", recomendacion: "4 x 15 reps", peso: true, descanso: 60 },
+                    { nombre: "Elevaciones Laterales", recomendacion: "3 x 15 reps", peso: true, descanso: 60 },
+                    { nombre: "Curl de Bíceps alterno", recomendacion: "3 x 12 reps", peso: true, descanso: 60 }
                 ],
                 "Día 3: Lower 2": [
-                    { nombre: "Saltos a Cajón", peso: false, descanso: 120 },
-                    { nombre: "Kettlebell Swings", peso: true, descanso: 90 },
-                    { nombre: "Zancadas Laterales (Lateral Lunges)", peso: true, descanso: 90 },
-                    { nombre: "Plancha abdominal", peso: false, descanso: 60 }
+                    { nombre: "Saltos a Cajón", recomendacion: "4 x 5 reps", peso: false, descanso: 120 },
+                    { nombre: "Kettlebell Swings", recomendacion: "4 x 12-15 reps", peso: true, descanso: 90 },
+                    { nombre: "Zancadas Laterales (Lateral Lunges)", recomendacion: "3 x 12 reps", peso: true, descanso: 90 },
+                    { nombre: "Plancha abdominal", recomendacion: "3 x 45-60 seg", peso: false, descanso: 60 }
                 ],
                 "Día 4: Upper 2": [
-                    { nombre: "Press Plano con mancuernas", peso: true, descanso: 120 },
-                    { nombre: "Jalón al pecho (Polea)", peso: true, descanso: 90 },
-                    { nombre: "Press Militar sentado", peso: true, descanso: 90 },
-                    { nombre: "Extensión de Tríceps (Cuerda)", peso: true, descanso: 60 },
-                    { nombre: "Curl Martillo para Bíceps", peso: true, descanso: 60 }
+                    { nombre: "Press Plano con mancuernas", recomendacion: "4 x 8-10 reps", peso: true, descanso: 120 },
+                    { nombre: "Jalón al pecho (Polea)", recomendacion: "3 x 10-12 reps", peso: true, descanso: 90 },
+                    { nombre: "Press Militar sentado", recomendacion: "3 x 10 reps", peso: true, descanso: 90 },
+                    { nombre: "Extensión de Tríceps (Cuerda)", recomendacion: "4 x 12-15 reps", peso: true, descanso: 60 },
+                    { nombre: "Curl Martillo para Bíceps", recomendacion: "4 x 12 reps", peso: true, descanso: 60 }
                 ]
             },
             "Fase 2: Fuerza e Hipertrofia (2 meses)": {
                 "Día 1: Lower 1": [
-                    { nombre: "Prensa de Piernas (Leg Press)", peso: true, descanso: 120 },
-                    { nombre: "Peso Muerto Rumano con barra", peso: true, descanso: 120 },
-                    { nombre: "Extensión de Cuádriceps", peso: true, descanso: 60 },
-                    { nombre: "Curl de Isquiotibiales", peso: true, descanso: 60 },
-                    { nombre: "Elevación de talones (Máquina)", peso: true, descanso: 60 }
+                    { nombre: "Prensa de Piernas (Leg Press)", recomendacion: "4 x 8-10 reps", peso: true, descanso: 120 },
+                    { nombre: "Peso Muerto Rumano con barra", recomendacion: "4 x 8-10 reps", peso: true, descanso: 120 },
+                    { nombre: "Extensión de Cuádriceps", recomendacion: "3 x 12 reps (al fallo)", peso: true, descanso: 60 },
+                    { nombre: "Curl de Isquiotibiales", recomendacion: "3 x 12 reps", peso: true, descanso: 60 },
+                    { nombre: "Elevación de talones (Máquina)", recomendacion: "4 x 15 reps", peso: true, descanso: 60 }
                 ],
                 "Día 2: Upper 1": [
-                    { nombre: "Press de Banca con barra", peso: true, descanso: 120 },
-                    { nombre: "Dominadas", peso: false, descanso: 120 },
-                    { nombre: "Remo con barra", peso: true, descanso: 90 },
-                    { nombre: "Face Pull", peso: true, descanso: 60 },
-                    { nombre: "Elevación Lateral con mancuernas", peso: true, descanso: 60 }
+                    { nombre: "Press de Banca con barra", recomendacion: "4 x 6-8 reps", peso: true, descanso: 120 },
+                    { nombre: "Dominadas", recomendacion: "4 x Al fallo", peso: false, descanso: 120 },
+                    { nombre: "Remo con barra", recomendacion: "4 x 8-10 reps", peso: true, descanso: 90 },
+                    { nombre: "Face Pull", recomendacion: "4 x 15 reps", peso: true, descanso: 60 },
+                    { nombre: "Elevación Lateral con mancuernas", recomendacion: "4 x 12 reps", peso: true, descanso: 60 }
                 ],
                 "Día 3: Lower 2": [
-                    { nombre: "Saltos a Cajón (Alto)", peso: false, descanso: 120 },
-                    { nombre: "Sentadilla Búlgara pesada", peso: true, descanso: 120 },
-                    { nombre: "Kettlebell Swings Pesados", peso: true, descanso: 90 },
-                    { nombre: "Zancadas Laterales (Lateral Lunges)", peso: true, descanso: 90 },
-                    { nombre: "Plancha abdominal con peso", peso: true, descanso: 60 }
+                    { nombre: "Saltos a Cajón (Alto)", recomendacion: "5 x 3 reps", peso: false, descanso: 120 },
+                    { nombre: "Sentadilla Búlgara pesada", recomendacion: "3 x 8 reps", peso: true, descanso: 120 },
+                    { nombre: "Kettlebell Swings Pesados", recomendacion: "4 x 12 reps", peso: true, descanso: 90 },
+                    { nombre: "Zancadas Laterales (Lateral Lunges)", recomendacion: "3 x 10 reps", peso: true, descanso: 90 },
+                    { nombre: "Plancha abdominal con peso", recomendacion: "3 x 45 seg", peso: true, descanso: 60 }
                 ],
                 "Día 4: Upper 2": [
-                    { nombre: "Press Inclinado con mancuernas", peso: true, descanso: 120 },
-                    { nombre: "Jalón al Pecho", peso: true, descanso: 90 },
-                    { nombre: "Press Militar sentado", peso: true, descanso: 90 },
-                    { nombre: "Curl de Bíceps alterno", peso: true, descanso: 60 },
-                    { nombre: "Extensión de Tríceps en polea", peso: true, descanso: 60 }
+                    { nombre: "Press Inclinado con mancuernas", recomendacion: "4 x 8-10 reps", peso: true, descanso: 120 },
+                    { nombre: "Jalón al Pecho", recomendacion: "4 x 10 reps", peso: true, descanso: 90 },
+                    { nombre: "Press Militar sentado", recomendacion: "3 x 10 reps", peso: true, descanso: 90 },
+                    { nombre: "Curl de Bíceps alterno", recomendacion: "4 x 12 reps", peso: true, descanso: 60 },
+                    { nombre: "Extensión de Tríceps en polea", recomendacion: "4 x 12 reps", peso: true, descanso: 60 }
                 ]
             },
             "Fase 3: Atleta Pro / Mantenimiento (Permanente)": {
                 "Día 1: Lower 1": [
-                    { nombre: "Sentadilla Libre con barra", peso: true, descanso: 120 },
-                    { nombre: "Peso Muerto Rumano pesado", peso: true, descanso: 120 },
-                    { nombre: "Sentadilla Búlgara", peso: true, descanso: 120 },
-                    { nombre: "Elevación de talones pesada", peso: true, descanso: 60 }
+                    { nombre: "Sentadilla Libre con barra", recomendacion: "4 x 5 reps", peso: true, descanso: 120 },
+                    { nombre: "Peso Muerto Rumano pesado", recomendacion: "4 x 8 reps", peso: true, descanso: 120 },
+                    { nombre: "Sentadilla Búlgara", recomendacion: "3 x 8 reps", peso: true, descanso: 90 },
+                    { nombre: "Elevación de talones pesada", recomendacion: "4 x 15 reps", peso: true, descanso: 60 }
                 ],
                 "Día 2: Upper 1": [
-                    { nombre: "Press de Banca Inclinado con barra", peso: true, descanso: 120 },
-                    { nombre: "Dominadas con lastre", peso: true, descanso: 120 },
-                    { nombre: "Remo con barra", peso: true, descanso: 90 },
-                    { nombre: "Face Pull", peso: true, descanso: 60 },
-                    { nombre: "Elevaciones Laterales", peso: true, descanso: 60 }
+                    { nombre: "Press de Banca Inclinado con barra", recomendacion: "4 x 6 reps", peso: true, descanso: 120 },
+                    { nombre: "Dominadas con lastre", recomendacion: "4 x 6-8 reps", peso: true, descanso: 120 },
+                    { nombre: "Remo con barra", recomendacion: "4 x 8 reps", peso: true, descanso: 90 },
+                    { nombre: "Face Pull", recomendacion: "4 x 15 reps", peso: true, descanso: 60 },
+                    { nombre: "Elevaciones Laterales", recomendacion: "4 x 12 reps", peso: true, descanso: 60 }
                 ],
                 "Día 3: Lower 2": [
-                    { nombre: "Saltos de profundidad (Depth Jumps)", peso: false, descanso: 120 },
-                    { nombre: "Push Press con barra/mancuernas", peso: true, descanso: 120 },
-                    { nombre: "Zancadas Laterales", peso: true, descanso: 90 },
-                    { nombre: "Kettlebell Swings", peso: true, descanso: 90 }
+                    { nombre: "Saltos de profundidad (Depth Jumps)", recomendacion: "5 x 3 reps", peso: false, descanso: 120 },
+                    { nombre: "Push Press con barra/mancuernas", recomendacion: "4 x 5 reps", peso: true, descanso: 120 },
+                    { nombre: "Zancadas Laterales", recomendacion: "3 x 10 reps", peso: true, descanso: 90 },
+                    { nombre: "Kettlebell Swings", recomendacion: "4 x 15 reps", peso: true, descanso: 90 }
                 ],
                 "Día 4: Upper 2": [
-                    { nombre: "Press Plano", peso: true, descanso: 120 },
-                    { nombre: "Jalón al Pecho pesado", peso: true, descanso: 90 },
-                    { nombre: "Press Arnold", peso: true, descanso: 90 },
-                    { nombre: "Superserie: Curl Bíceps + Ext. Tríceps", peso: true, descanso: 60 }
+                    { nombre: "Press Plano", recomendacion: "4 x 8 reps", peso: true, descanso: 120 },
+                    { nombre: "Jalón al Pecho pesado", recomendacion: "4 x 8-10 reps", peso: true, descanso: 90 },
+                    { nombre: "Press Arnold", recomendacion: "3 x 10 reps", peso: true, descanso: 90 },
+                    { nombre: "Curl de Bíceps (Superserie)", recomendacion: "4 x 12 reps", peso: true, descanso: 60 },
+                    { nombre: "Extensión Tríceps (Superserie)", recomendacion: "4 x 12 reps", peso: true, descanso: 60 }
                 ]
             }
         };
@@ -401,10 +411,16 @@
             const dia = document.getElementById('sel-dia').value;
             const ejIdx = document.getElementById('sel-ejercicio').value;
             const btnCompletar = document.getElementById('btn-completar');
+            const metaBox = document.getElementById('meta-entrenamiento');
+            const metaTexto = document.getElementById('meta-texto');
 
             if (dia && ejIdx !== "") {
                 const ej = RUTINAS[fase][dia][ejIdx];
                 btnCompletar.disabled = false;
+
+                /* ___ META DE ENTRENAMIENTO ___ */
+                metaTexto.textContent = ej.recomendacion;
+                metaBox.classList.remove('hidden');
 
                 /* ___ INTERFAZ ADAPTATIVA (OCULTAR PESO) ___ */
                 const contenedorGrid = document.getElementById('controles-grid');
@@ -423,6 +439,7 @@
 
             } else {
                 btnCompletar.disabled = true;
+                metaBox.classList.add('hidden');
             }
         }
 
